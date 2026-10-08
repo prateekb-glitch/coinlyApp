@@ -1,8 +1,5 @@
 # Coinly Rewards App — Engineering Design Note & Architecture
-
-> **Author**: Coinly Core Engineering Team  
-> **Topic**: Secure "Claim Reward" Flow & Anti-Fraud Architecture  
-> **Compliance**: OWASP MASVS/MASTG, Google Play Integrity API, reCAPTCHA Enterprise  
+ 
 > **Stack**: Kotlin, Jetpack Compose, Kotlin Coroutines & Flow, Koin DI, Retrofit/OkHttp  
 
 ---
