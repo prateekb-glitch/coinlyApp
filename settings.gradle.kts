@@ -24,4 +24,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "coinly"
 include(":app")
+include(":trust-core")
  

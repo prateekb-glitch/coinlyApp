@@ -1,25 +1,23 @@
-# Walkthrough - Coinly Rewards App (Claim & Cash Redemption Flows)
+# Walkthrough - Coinly Trust Gate & `:trust-core` Module Split
 
-We have successfully implemented both the **"Claim Reward"** task flow and the **"Cash Redemption"** payout flow, fully integrating the `canRedeem` threshold logic and anti-fraud attestation.
+We have successfully built the multi-module Android application implementing the **Trust Gate** and completing the **` :trust-core` pure Kotlin library module** stretch goal.
 
-## Changes Made
+## Architecture & Module Split (Stretch Goal Completed)
 
-### 1. Cash Redemption Flow Implementation (`canRedeem` & Payout)
-- **Domain Layer (`domain/`)**:
-  - Added `suspend fun redeemCoins(): ClaimResult` to `RewardRepository`.
-  - Implemented `RedeemCoinsUseCase` which validates device security heuristics before payout processing.
-- **Data Layer (`data/`)**:
-  - Updated `RewardRepositoryImpl` with `redeemCoins()` logic: validates `balance.canRedeem`, generates anti-fraud attestation tokens, deducts the redemption threshold (1,000 coins), and updates the user balance.
-- **Dependency Injection (`di/`)**:
-  - Registered `RedeemCoinsUseCase` in Koin `appModule` and injected into `RewardViewModel`.
-- **Presentation Layer (`ui/`)**:
-  - Updated `RewardViewModel` with `redeemCoins()` handling `StateFlow` and structured concurrency (`viewModelScope`).
-  - Updated `BalanceCard` in `RewardScreen` to feature a dynamic **"Redeem $10.00 Cash Payout"** button enabled when `balance.canRedeem` is true (or indicating coins needed to reach threshold).
+### 1. `:trust-core` (Pure Kotlin Library Module)
+- **Path**: `trust-core/`
+- **Contents**: Pure Kotlin domain models (`TrustState`, `TrustPolicy`, `SignalData`, `TrustClaimResult`), interfaces (`IntegrityProvider`, `CaptchaProvider`, `SignalCollector`, `Analytics`, `TrustStorage`, `TrustRepository`), and core business contracts.
+- **Dependencies**: Coroutines Core (`kotlinx-coroutines-core`) and unit testing libraries. Zero Android SDK dependencies.
+
+### 2. `:app` (Android UI & Integration Module)
+- **Path**: `app/`
+- **Contents**: Android-specific implementations (`SecureStorage` with `EncryptedSharedPreferences`, `SignalCollectorImpl` with `Build` heuristics, `TrustMockServer`, Retrofit API client, `RedactedLoggingInterceptor`, Jetpack Compose UI screens, and Koin UI bindings).
+- **Dependency Direction**: `:app` depends on `:trust-core` via `implementation(project(":trust-core"))`.
 
 ---
 
 ## Verification Results
 
-### Build Status
-- **Gradle Build**: `app:assembleDebug` completed **successfully** with zero compilation errors.
-- **Stack Constraint Validation**: Maintained pure Clean Architecture, Koin DI, Coroutines/Flow, and Compose M3 without violating any constraints.
+### Build & Test Status
+- **Gradle Build**: `app:assembleDebug` completed **successfully**.
+- **Unit Tests**: `:app:testDebugUnitTest` executed **4 tests passed, 0 failed**.

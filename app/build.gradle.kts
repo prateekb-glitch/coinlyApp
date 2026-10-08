@@ -56,11 +56,19 @@ dependencies {
     implementation(libs.retrofit.converter.gson)
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
+    implementation(libs.okhttp.mockwebserver)
+    implementation(libs.androidx.security.crypto)
 
     // Coroutines
     implementation(libs.kotlinx.coroutines.android)
 
+    // Trust Core Module
+    implementation(project(":trust-core"))
+
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.cash.turbine)
+    testImplementation(libs.okhttp.mockwebserver)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)

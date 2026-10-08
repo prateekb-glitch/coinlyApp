@@ -136,3 +136,36 @@ sequenceDiagram
 6. **MASVS-RESILIENCE-2**: R8 compiler configured with aggressive code shrinking, obfuscation, and anti-tamper checks.
 
 ---
+
+## 7. Trust Gate & Advanced Anti-Fraud Architecture
+
+Coinly implements a robust Trust Gate module guarding the "Claim Reward" flow with explicit sealed state management, single-flight integrity caching, and strict server-contract failure semantics.
+
+### Explicit Sealed State Machine
+```kotlin
+sealed interface TrustState {
+    data object Idle : TrustState
+    data object Checking : TrustState
+    data object Allowed : TrustState
+    data class Blocked(val reason: String, val isTerminal: Boolean) : TrustState
+    data class ChallengeRequired(val challengeId: String, val taskId: String) : TrustState
+    data class Retrying(val attempt: Int, val maxAttempts: Int, val delayMs: Long) : TrustState
+}
+```
+
+### Analytics Event Funnel Schema
+| Event Name | Parameters | Description |
+| :--- | :--- | :--- |
+| `trust_requested` | `taskId: String` | Emitted when trust verification begins for a reward claim. |
+| `trust_result` | `taskId: String`, `result: String` | Emitted on completion (`PASS`, `FAIL`, `ERROR`). |
+| `trust_action` | `taskId: String`, `action: String` | Emitted on final decision (`ALLOW`, `BLOCK`). |
+| `trust_retry` | `taskId: String`, `reason: String`, `attempt: Int` | Emitted on network/transient retry (reason sanitized, max 120 chars). |
+
+### Security & Resilience Highlights
+- **Single-Flight Integrity Caching**: Concurrent claims share a single in-flight token request using coroutine `Mutex` and 60-second TTL caching.
+- **EncryptedSharedPreferences**: Persists pending claims and verdicts securely via Android Keystore.
+- **Redacted Logging**: OkHttp interceptor automatically redacts sensitive headers (Authorization, X-Integrity-Token, X-Nonce) in production logs.
+- **R8 Keep Rules**: Configured in `rules.keep` to protect DTOs and security-crypto classes.
+
+
+---

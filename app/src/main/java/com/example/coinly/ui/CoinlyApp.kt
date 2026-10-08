@@ -2,6 +2,7 @@ package com.example.coinly.ui
 
 import android.app.Application
 import com.example.coinly.di.appModule
+import com.example.coinly.trust.di.trustModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -17,7 +18,7 @@ class CoinlyApp : Application() {
         startKoin {
             androidLogger(Level.ERROR)
             androidContext(this@CoinlyApp)
-            modules(appModule)
+            modules(appModule, trustModule)
         }
     }
 }
